@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.HashSet;
@@ -31,6 +32,16 @@ public class ServerThread extends Thread {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendFile(String file) {
+        serverThreadThreads.forEach(t-> {
+            try {
+                t.getDataOutputStream().writeUTF(file);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        });
     }
 
     public Set<ServerThreadThread> getServerThreadThreads() {
