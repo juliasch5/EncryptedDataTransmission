@@ -34,16 +34,6 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendFile(String file) {
-        serverThreadThreads.forEach(t-> {
-            try {
-                t.getDataOutputStream().writeUTF(file);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        });
-    }
-
     public Set<ServerThreadThread> getServerThreadThreads() {
         return serverThreadThreads;
     }
