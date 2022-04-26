@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.List;
 
 public class GUI {
     private final JFrame loginFrame, connectFrame, chatFrame;
@@ -45,7 +46,7 @@ public class GUI {
         lPort.setForeground(Color.WHITE);
         loginFrame.add(lPort);
 
-        tfPort = new JTextField("");
+        tfPort = new JTextField("1234");
         tfPort.setBounds(200, 100, 150, 30);
         tfPort.setBackground(Color.LIGHT_GRAY);
         loginFrame.add(tfPort);
@@ -94,7 +95,7 @@ public class GUI {
         lHostname.setForeground(Color.WHITE);
         connectFrame.add(lHostname);
 
-        tfHostname = new JTextField();
+        tfHostname = new JTextField("localhost");
         tfHostname.setBounds(200, 75, 150, 30);
         connectFrame.add(tfHostname);
 
@@ -103,7 +104,7 @@ public class GUI {
         lPort.setForeground(Color.WHITE);
         connectFrame.add(lPort);
 
-        tfPort = new JTextField("");
+        tfPort = new JTextField("1234");
         tfPort.setBounds(200, 125, 150, 30);
         connectFrame.add(tfPort);
 
@@ -213,35 +214,60 @@ public class GUI {
             JSONObject object = new JSONObject(jsonString);
             if(object.has("isFile")) {
                 Long fileSize = Long.parseLong(object.get("fileSize").toString());
+                String fileName = object.get("fileName").toString();
                 if(fileSize < 50 * 1024) { // less than 50KB
                     serverThread.sendMessage(jsonString);
                 }
                 else {
                     // split fileStream
                     String port1 = object.get("port").toString();
-                    String fileName = object.get("fileName").toString();
                     String fileStream = object.get("fileStream").toString();
                     int numberOfMessages = fileStream.length() / (50 * 1024) + 1;
 
                     String[] stream = fileStream.split("(?<=\\G.{" + 50 * 1024 + "})");
 
-                    ProgressWindow progressWindow = new ProgressWindow(numberOfMessages);
+                    ProgressWindow progressWindow = new ProgressWindow();
 
-                    for (int i = 0; i < numberOfMessages; i++) {
-                        String newJsonString = new JSONObject()
-                                .put("isFile", true)
-                                .put("port", port1)
-                                .put("fileName", fileName)
-                                .put("fileStream", stream[i])
-                                .put("fileSize", fileSize)
-                                .put("index", i)
-                                .put("numberOfMessages", numberOfMessages)
-                                .toString();
+                    SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            Integer progress = 0;
+                            Double tmp = 0.0;
+                            setProgress(0);
 
-                        progressWindow.updateBar(i + 1);
-                        serverThread.sendMessage(newJsonString);
-                    }
+                            progressWindow.getProgressBar().setMaximum(100);
+
+                            for (int i = 0; i < numberOfMessages; i++) {
+                                String newJsonString = new JSONObject()
+                                        .put("isFile", true)
+                                        .put("port", port1)
+                                        .put("fileName", fileName)
+                                        .put("fileStream", stream[i])
+                                        .put("fileSize", fileSize)
+                                        .put("index", i)
+                                        .put("numberOfMessages", numberOfMessages)
+                                        .toString();
+                                serverThread.sendMessage(newJsonString);
+
+                                tmp = Double.valueOf(i + 1) / Double.valueOf(numberOfMessages) * 100.0;
+
+                                progress = tmp.intValue();
+                                setProgress(progress);
+                                publish(progress);
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        protected void process(List<Integer> chunks) {
+                            for (Integer p : chunks) {
+                                progressWindow.getProgressBar().setValue(p);
+                            }
+                        }
+                    };
+                    worker.execute();
                 }
+                chatArea.append("Me:\n" + fileName + "\n");
             }
         });
         chatFrame.add(bSendFile);

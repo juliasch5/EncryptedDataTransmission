@@ -61,12 +61,12 @@ public class PeerThread extends Thread {
                                         // System.out.println((char) b);
                                     }
 
-                                    System.out.println(byteArray.length);
                                     saveFile(port, fileName, byteArray);
                                 }
                             }
                         }
                     }
+                    // text message
                     else {
                         if (object.has("port")) {
                             System.out.println(object.toMap().toString());
@@ -89,7 +89,6 @@ public class PeerThread extends Thread {
         String home = System.getProperty("user.home");
         FileOutputStream fileOutputStream = new FileOutputStream(home + "\\Downloads\\" + fileName);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-        System.out.println(byteArray.length);
         bufferedOutputStream.write(byteArray, 0, byteArray.length);
         bufferedOutputStream.flush();
         bufferedOutputStream.close();
