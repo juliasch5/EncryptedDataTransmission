@@ -1,3 +1,6 @@
+package src.p2p;
+
+import src.gui.ChatWindow;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -7,12 +10,12 @@ import java.util.Base64;
 
 public class PeerThread extends Thread {
     private BufferedReader bufferedReader;
-    private GUI gui;
+    private ChatWindow chatWindow;
     private JSONObject[] largeFileMessages;
 
-    public PeerThread(Socket socket, GUI gui) throws IOException {
+    public PeerThread(Socket socket, ChatWindow chatWindow) throws IOException {
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.gui = gui;
+        this.chatWindow = chatWindow;
         this.largeFileMessages = new JSONObject[1024 * 100];
     }
 
@@ -70,7 +73,7 @@ public class PeerThread extends Thread {
                     else {
                         if (object.has("port")) {
                             System.out.println(object.toMap().toString());
-                            gui.getChatArea().append("from port " + object.get("port").toString() + ":\n" +
+                            chatWindow.getChatArea().append("from port " + object.get("port").toString() + ":\n" +
                                     object.get("message").toString() + "\n");
                         }
                     }
@@ -78,7 +81,7 @@ public class PeerThread extends Thread {
              }
             catch (Exception e) {
                 flag = false;
-                System.out.println("PeerThread exception");
+                System.out.println("src.p2p.PeerThread exception");
                 e.printStackTrace();
                 interrupt();
             }
@@ -93,7 +96,7 @@ public class PeerThread extends Thread {
         bufferedOutputStream.flush();
         bufferedOutputStream.close();
 
-        gui.getChatArea().append("from port " + port + ":\nfile " + fileName + " downloaded to "
+        chatWindow.getChatArea().append("from port " + port + ":\nfile " + fileName + " downloaded to "
                 + home + "\\Downloads\\" + fileName + "\n");
     }
 

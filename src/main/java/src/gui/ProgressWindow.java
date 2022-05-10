@@ -1,3 +1,5 @@
+package src.gui;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -20,14 +22,16 @@ public class ProgressWindow {
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
         progressBar.setVisible(true);
+        progressBar.setBackground(Color.LIGHT_GRAY);
         progressFrame.add(progressBar);
 
         bOK = new JButton("OK");
         bOK.setBounds(60, 80, 80, 30);
+        bOK.setBackground(Color.LIGHT_GRAY);
         bOK.addActionListener(e -> {
-                if (progressBar.getValue() == 100) {
-                    progressFrame.setVisible(false);
-                }
+            if (progressBar.getValue() == 100) {
+                progressFrame.setVisible(false);
+            }
         });
         progressFrame.add(bOK);
         progressFrame.setVisible(true);

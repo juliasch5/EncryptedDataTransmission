@@ -3,5 +3,4 @@ App.class
 ServerThread.class
 PeerThread.class
 RSA.class
-GUI.class
 SplitFile.class
