@@ -17,6 +17,8 @@ public class ChatWindow {
     private JButton bSendMessage, bSendFile, bFile;
     private JPanel panel;
     private JScrollPane scroll;
+    private JScrollPane fileTextAreaScroll;
+    private JScrollPane taScroll;
     GroupLayout layout;
 
     public ChatWindow() {
@@ -52,7 +54,11 @@ public class ChatWindow {
         fileTextArea = new JTextArea(2, 10);
         fileTextArea.setBounds(220, 490, 180, 30);
         fileTextArea.setEditable(false);
+        fileTextArea.setLineWrap(true);
         fileTextArea.setBackground(Color.LIGHT_GRAY);
+
+        fileTextAreaScroll = new JScrollPane(fileTextAreaScroll);
+        fileTextAreaScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         bFile = new JButton("Choose file");
         bFile.setBounds(110, 490, 100, 30);
@@ -164,6 +170,10 @@ public class ChatWindow {
         taText = new JTextArea(2, 10);
         taText.setBounds(110, 530, 290, 30);
         taText.setBackground(Color.LIGHT_GRAY);
+        taText.setLineWrap(true);
+
+        taScroll = new JScrollPane(taText);
+        taScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         bSendMessage = new JButton("Send");
         bSendMessage.setBounds(410, 530, 70, 30);
@@ -203,8 +213,8 @@ public class ChatWindow {
                                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                 .addComponent(bFile))
                                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                .addComponent(fileTextArea)))
-                                .addComponent(taText))
+                                                .addComponent(fileTextAreaScroll)))
+                                .addComponent(taScroll))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(bSendFile)
                                 .addComponent(bSendMessage))
@@ -216,12 +226,12 @@ public class ChatWindow {
                                 .addGroup(layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                 .addComponent(bFile)
-                                                .addComponent(fileTextArea))
+                                                .addComponent(fileTextAreaScroll))
                                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)))
                                 .addComponent(bSendFile))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(lSendMessage)
-                                .addComponent(taText)
+                                .addComponent(taScroll)
                                 .addComponent(bSendMessage))
         );
     }

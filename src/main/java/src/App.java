@@ -1,5 +1,7 @@
 package src;
 
+import src.user.User;
+
 import src.p2p.ServerThread;
 import src.gui.ChatWindow;
 import src.gui.ConnectWindow;
@@ -16,9 +18,9 @@ public class App {
         login.loginLayout(bufferedReader);
     }
 
-    public void updateListenToPeers(BufferedReader bufferedReader, String port, ServerThread serverThread) throws IOException {
+    public void updateListenToPeers(BufferedReader bufferedReader, User user, ServerThread serverThread) throws IOException {
         ConnectWindow connect = new ConnectWindow();
-        connect.connectLayout(bufferedReader, port, serverThread, this);
+        connect.connectLayout(bufferedReader, user, serverThread, this);
     }
 
     public void communicate(BufferedReader bufferedReader, String port, ServerThread serverThread, ChatWindow chat) {

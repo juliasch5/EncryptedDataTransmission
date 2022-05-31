@@ -2,11 +2,13 @@ package src.gui;
 
 import src.App;
 import src.p2p.ServerThread;
+import src.user.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginWindow {
     private final JFrame loginFrame;
@@ -54,12 +56,16 @@ public class LoginWindow {
             String password = new String(pfPassword.getPassword());
 
             ServerThread serverThread;
+            User user;
             try {
-                serverThread = new ServerThread(port);
+                user = new User(port, password);
+                serverThread = new ServerThread(user);
                 serverThread.start();
-                new App().updateListenToPeers(bufferedReader, port, serverThread);
+                new App().updateListenToPeers(bufferedReader, user, serverThread);
             } catch (IOException exception) {
                 exception.printStackTrace();
+            } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                noSuchAlgorithmException.printStackTrace();
             }
             loginFrame.setVisible(false);
         });

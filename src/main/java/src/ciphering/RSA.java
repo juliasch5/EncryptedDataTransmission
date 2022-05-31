@@ -1,4 +1,4 @@
-package src;
+package src.ciphering;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -14,16 +14,14 @@ public class RSA {
         this.tamPrimo = tamPrimo;
         generatePrimes();             //Generate p y q
         generateKeys();             //Generate e y d
-
     }
 
-    public RSA(BigInteger p,BigInteger q,int tamPrimo) {
+    public RSA(BigInteger p, BigInteger q, int tamPrimo) {
         this.tamPrimo=tamPrimo;
         this.p=p;
         this.q=q;
         generateKeys();             //Generate e y d
     }
-    
 
     public void generatePrimes()
     {
@@ -46,8 +44,6 @@ public class RSA {
         // d = e^1 mod totient
         d = e.modInverse(totient);
     }
-
-
 
     public BigInteger getP() {return(p);}
     public BigInteger getQ() {return(q);}

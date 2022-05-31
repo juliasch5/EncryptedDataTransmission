@@ -3,6 +3,7 @@ package src.p2p;
 import src.gui.ChatWindow;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import src.user.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,11 +13,13 @@ public class PeerThread extends Thread {
     private BufferedReader bufferedReader;
     private ChatWindow chatWindow;
     private JSONObject[] largeFileMessages;
+    private User user;
 
-    public PeerThread(Socket socket, ChatWindow chatWindow) throws IOException {
+    public PeerThread(Socket socket, ChatWindow chatWindow, User user) throws IOException {
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.chatWindow = chatWindow;
         this.largeFileMessages = new JSONObject[1024 * 100];
+        this.user = user;
     }
 
     public void run() {
@@ -78,10 +81,16 @@ public class PeerThread extends Thread {
                         }
                     }
                 }
+                else if (object.has("isKey")) {
+                    if (object.get("isKey").equals(true) && object.has("port") && object.has("key")) {
+                        System.out.println(object.toMap().toString());
+                        user.addPeersPublicKey(object.get("port").toString(), object.get("key").toString());
+                    }
+                }
              }
             catch (Exception e) {
                 flag = false;
-                System.out.println("src.p2p.PeerThread exception");
+                System.out.println("PeerThread exception");
                 e.printStackTrace();
                 interrupt();
             }

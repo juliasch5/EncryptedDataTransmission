@@ -3,6 +3,7 @@ package src.gui;
 import src.App;
 import src.p2p.PeerThread;
 import src.p2p.ServerThread;
+import src.user.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,7 +25,7 @@ public class ConnectWindow {
         chat = new ChatWindow();
     }
 
-    public void connectLayout(BufferedReader bufferedReader, String port, ServerThread serverThread, App app) {
+    public void connectLayout(BufferedReader bufferedReader, User user, ServerThread serverThread, App app) {
         JLabel lHostname, lPort, lMode;
         JTextField tfHostname, tfPort;
         JComboBox cbMode;
@@ -72,7 +73,7 @@ public class ConnectWindow {
             Socket socket = null;
             try {
                 socket = new Socket(hostname, Integer.parseInt(port1));
-                new PeerThread(socket, chat).start();
+                new PeerThread(socket, chat, user).start();
             }
             catch (Exception exception) {
                 if (socket != null) {
@@ -86,6 +87,7 @@ public class ConnectWindow {
             }
             app.communicate(bufferedReader, port1, serverThread, chat);
 
+            serverThread.exchangePublicKeys(port1);
             connectFrame.setVisible(false);
         });
         connectFrame.add(bConnect);
@@ -93,6 +95,4 @@ public class ConnectWindow {
         connectFrame.setTitle("Connect");
         connectFrame.setVisible(true);
     }
-
-
 }
