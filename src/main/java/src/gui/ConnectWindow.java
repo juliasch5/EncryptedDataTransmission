@@ -87,7 +87,6 @@ public class ConnectWindow {
             }
             app.communicate(bufferedReader, port1, serverThread, chat);
 
-            serverThread.exchangePublicKeys(port1);
             connectFrame.setVisible(false);
         });
         connectFrame.add(bConnect);

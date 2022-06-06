@@ -3,9 +3,17 @@ package src.gui;
 import org.json.JSONObject;
 import src.p2p.ServerThread;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.List;
 
@@ -19,6 +27,8 @@ public class ChatWindow {
     private JScrollPane scroll;
     private JScrollPane fileTextAreaScroll;
     private JScrollPane taScroll;
+    private JButton exchangeButton;
+    private ServerThread server;
     GroupLayout layout;
 
     public ChatWindow() {
@@ -30,6 +40,42 @@ public class ChatWindow {
     }
 
     public void chatLayout(String port, ServerThread serverThread) {
+        server = serverThread;
+        exchangeButton = new JButton("Exchange keys");
+        exchangeButton.setBounds(110, 490, 100, 30);
+        exchangeButton.setBackground(Color.LIGHT_GRAY);
+        exchangeButton.addActionListener(e -> {
+            chatArea.append("Me:\n" + "Public key has been sent" + "\n");
+
+            String jsonString = new JSONObject()
+                    .put("isFile", false)
+                    .put("port", port)
+                    .put("sender", serverThread.getUser().getPort())
+                    .put("message", "Public key received")
+                    .toString();
+
+            try {
+                serverThread.sendMessage(jsonString, port);
+            } catch (ShortBufferException shortBufferException) {
+                shortBufferException.printStackTrace();
+            } catch (IllegalBlockSizeException illegalBlockSizeException) {
+                illegalBlockSizeException.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            } catch (BadPaddingException badPaddingException) {
+                badPaddingException.printStackTrace();
+            } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+                invalidAlgorithmParameterException.printStackTrace();
+            } catch (NoSuchPaddingException noSuchPaddingException) {
+                noSuchPaddingException.printStackTrace();
+            } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                noSuchAlgorithmException.printStackTrace();
+            } catch (NoSuchProviderException noSuchProviderException) {
+                noSuchProviderException.printStackTrace();
+            } catch (InvalidKeyException invalidKeyException) {
+                invalidKeyException.printStackTrace();
+            }
+        });
         panel = new JPanel();
         panel.setBackground(Color.DARK_GRAY);
         panel.setSize(500,600);
@@ -108,7 +154,27 @@ public class ChatWindow {
                 Long fileSize = Long.parseLong(object.get("fileSize").toString());
                 String fileName = object.get("fileName").toString();
                 if(fileSize < 50 * 1024) { // less than 50KB
-                    serverThread.sendMessage(jsonString);
+                    try {
+                        serverThread.sendMessage(jsonString, port);
+                    } catch (ShortBufferException shortBufferException) {
+                        shortBufferException.printStackTrace();
+                    } catch (IllegalBlockSizeException illegalBlockSizeException) {
+                        illegalBlockSizeException.printStackTrace();
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    } catch (BadPaddingException badPaddingException) {
+                        badPaddingException.printStackTrace();
+                    } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+                        invalidAlgorithmParameterException.printStackTrace();
+                    } catch (NoSuchPaddingException noSuchPaddingException) {
+                        noSuchPaddingException.printStackTrace();
+                    } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                        noSuchAlgorithmException.printStackTrace();
+                    } catch (NoSuchProviderException noSuchProviderException) {
+                        noSuchProviderException.printStackTrace();
+                    } catch (InvalidKeyException invalidKeyException) {
+                        invalidKeyException.printStackTrace();
+                    }
                 }
                 else {
                     // split fileStream
@@ -139,7 +205,7 @@ public class ChatWindow {
                                         .put("index", i)
                                         .put("numberOfMessages", numberOfMessages)
                                         .toString();
-                                serverThread.sendMessage(newJsonString);
+                                serverThread.sendMessage(newJsonString, port);
 
                                 tmp = Double.valueOf(i + 1) / Double.valueOf(numberOfMessages) * 100.0;
 
@@ -190,7 +256,27 @@ public class ChatWindow {
                     .put("message", message)
                     .toString();
 
-            serverThread.sendMessage(jsonString);
+            try {
+                serverThread.sendMessage(jsonString, port);
+            } catch (ShortBufferException shortBufferException) {
+                shortBufferException.printStackTrace();
+            } catch (IllegalBlockSizeException illegalBlockSizeException) {
+                illegalBlockSizeException.printStackTrace();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            } catch (BadPaddingException badPaddingException) {
+                badPaddingException.printStackTrace();
+            } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+                invalidAlgorithmParameterException.printStackTrace();
+            } catch (NoSuchPaddingException noSuchPaddingException) {
+                noSuchPaddingException.printStackTrace();
+            } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                noSuchAlgorithmException.printStackTrace();
+            } catch (NoSuchProviderException noSuchProviderException) {
+                noSuchProviderException.printStackTrace();
+            } catch (InvalidKeyException invalidKeyException) {
+                invalidKeyException.printStackTrace();
+            }
         });
 
         groupComponents();
@@ -217,7 +303,8 @@ public class ChatWindow {
                                 .addComponent(taScroll))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(bSendFile)
-                                .addComponent(bSendMessage))
+                                .addComponent(bSendMessage)
+                                .addComponent(exchangeButton))
         );
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
@@ -233,10 +320,16 @@ public class ChatWindow {
                                 .addComponent(lSendMessage)
                                 .addComponent(taScroll)
                                 .addComponent(bSendMessage))
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(exchangeButton))
         );
     }
 
     public JTextArea getChatArea() {
         return this.chatArea;
+    }
+
+    public ServerThread getServer() {
+        return this.server;
     }
 }

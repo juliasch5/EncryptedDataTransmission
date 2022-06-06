@@ -41,7 +41,7 @@ public class CBCMode {
     // The initialization vector needed by the CBC mode
     byte[] IV = null;
 
-    public CBCMode(){
+    public CBCMode() {
         //for a 192 key you must install the unrestricted policy files
         //  from the JCE/JDK downloads page
         key = "SECRET_1SECRET_2".getBytes();
@@ -56,12 +56,11 @@ public class CBCMode {
         System.arraycopy(iv, 0 , IV, 0, iv.length);
     }
 
-    public CBCMode(byte[] pass) throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+    public CBCMode(byte[] pass) {
         //get the key and the IV
         key = new byte[pass.length];
         System.arraycopy(pass, 0 , key, 0, pass.length);
         IV = new byte[blockSize];
-        InitCiphers();
     }
 
     public CBCMode(byte[] pass, byte[]iv){
@@ -97,7 +96,8 @@ public class CBCMode {
     }
 
     public byte[] CBCEncrypt(String value) throws IOException, ShortBufferException,
-            IllegalBlockSizeException, BadPaddingException {
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        InitCiphers();
         //optionally put the IV at the beggining of the cipher file
         //fos.write(IV, 0, IV.length);
 
@@ -110,6 +110,7 @@ public class CBCMode {
 //            fos.write(cipherBlock, 0, cipherBytes);
 //        }
         //always call doFinal
+        //byte byteValue[] = Base64.getDecoder().decode(value.getBytes());
         byte[] cipherBytes = encryptCipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
         return cipherBytes;
 //        fos.write(cipherBlock,0,cipherBytes);
@@ -118,31 +119,39 @@ public class CBCMode {
 //        fos.close();
 //        fis.close();
     }
-    public void CBCDecrypt(InputStream fis, OutputStream fos) throws IOException, ShortBufferException,
-            IllegalBlockSizeException, BadPaddingException
-    {
+
+    public byte[] CBCEncrypt(byte[] value) throws IOException, ShortBufferException,
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        InitCiphers();
+        byte[] cipherBytes = encryptCipher.doFinal(value);
+        return cipherBytes;
+    }
+    public byte[] CBCDecrypt(String value) throws IOException, ShortBufferException,
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        InitCiphers();
         // get the IV from the file
         // DO NOT FORGET TO reinit the cipher with the IV
         //fis.read(IV,0,IV.length);
         //this.InitCiphers();
 
-        byte[] buffer = new byte[blockSize];
-        int noBytes = 0;
-        byte[] cipherBlock =
-            new byte[decryptCipher.getOutputSize(buffer.length)];
-        int cipherBytes;
-        while((noBytes = fis.read(buffer))!=-1)
-        {
-        cipherBytes =
-                decryptCipher.update(buffer, 0, noBytes, cipherBlock);
-        fos.write(cipherBlock, 0, cipherBytes);
-        }
+//        byte[] buffer = new byte[blockSize];
+//        int noBytes = 0;
+//        byte[] cipherBlock =
+//            new byte[decryptCipher.getOutputSize(buffer.length)];
+//        int cipherBytes;
+//        while((noBytes = fis.read(buffer))!=-1)
+//        {
+//        cipherBytes =
+//                decryptCipher.update(buffer, 0, noBytes, cipherBlock);
+//        fos.write(cipherBlock, 0, cipherBytes);
+//        }
         //allways call doFinal
-        cipherBytes = decryptCipher.doFinal(cipherBlock,0);
-        fos.write(cipherBlock,0,cipherBytes);
-
-        //close the files
-        fos.close();
-        fis.close();
+        byte decodedValue[] = decryptCipher.doFinal(Base64.getDecoder().decode(value));
+        return decodedValue;
+//        fos.write(cipherBlock,0,cipherBytes);
+//
+//        //close the files
+//        fos.close();
+//        fis.close();
     }
 }

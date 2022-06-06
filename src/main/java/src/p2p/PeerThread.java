@@ -1,12 +1,21 @@
 package src.p2p;
 
+import src.ciphering.CBCMode;
 import src.gui.ChatWindow;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import src.user.User;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
 import java.io.*;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Base64;
 
 public class PeerThread extends Thread {
@@ -78,13 +87,22 @@ public class PeerThread extends Thread {
                             System.out.println(object.toMap().toString());
                             chatWindow.getChatArea().append("from port " + object.get("port").toString() + ":\n" +
                                     object.get("message").toString() + "\n");
+                            if (object.has("sender")) {
+                                sendPublicKeyAndSessionKey(object.get("sender").toString(), chatWindow.getServer());
+                            }
                         }
                     }
                 }
                 else if (object.has("isKey")) {
-                    if (object.get("isKey").equals(true) && object.has("port") && object.has("key")) {
+                    if (object.get("isKey").equals(true) && object.has("port") && object.has("key") && object.has("sender")) {
                         System.out.println(object.toMap().toString());
-                        user.addPeersPublicKey(object.get("port").toString(), object.get("key").toString());
+                        user.addPeersPublicKey(object.get("sender").toString(), new CBCMode().CBCDecrypt(object.get("key").toString()));
+                    }
+                }
+                else if (object.has("isSessionKey")) {
+                    if (object.get("isSessionKey").equals(true) && object.has("port") && object.has("key")) {
+                        System.out.println(object.toMap().toString());
+                        user.setSessionKey(object.get("key").toString());
                     }
                 }
              }
@@ -109,4 +127,33 @@ public class PeerThread extends Thread {
                 + home + "\\Downloads\\" + fileName + "\n");
     }
 
+    private void sendPublicKeyAndSessionKey(String port, ServerThread serverThread) {
+        String jsonString = new JSONObject()
+                .put("isFile", false)
+                .put("port", port)
+                .put("message", "Public key received")
+                .toString();
+
+        try {
+            serverThread.sendMessage(jsonString, port);
+        } catch (ShortBufferException shortBufferException) {
+            shortBufferException.printStackTrace();
+        } catch (IllegalBlockSizeException illegalBlockSizeException) {
+            illegalBlockSizeException.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        } catch (BadPaddingException badPaddingException) {
+            badPaddingException.printStackTrace();
+        } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+            invalidAlgorithmParameterException.printStackTrace();
+        } catch (NoSuchPaddingException noSuchPaddingException) {
+            noSuchPaddingException.printStackTrace();
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+            noSuchAlgorithmException.printStackTrace();
+        } catch (NoSuchProviderException noSuchProviderException) {
+            noSuchProviderException.printStackTrace();
+        } catch (InvalidKeyException invalidKeyException) {
+            invalidKeyException.printStackTrace();
+        }
+    }
 }
