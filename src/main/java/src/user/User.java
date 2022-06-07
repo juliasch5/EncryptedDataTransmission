@@ -1,6 +1,5 @@
 package src.user;
 
-import org.bouncycastle.crypto.util.PublicKeyFactory;
 import src.ciphering.KeyStore;
 import src.ciphering.SHA256;
 import src.ciphering.SessionKey;
@@ -8,9 +7,7 @@ import src.ciphering.SessionKey;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -23,6 +20,7 @@ public class User {
     private final byte[] localKey;
     private final KeyPair keyPair;
     private Map<String, byte[]> peersPublicKeys;
+    private String encryptionMode;
     private SessionKey sessionKey;
 
     public User(String port, String password) throws NoSuchAlgorithmException {
@@ -107,5 +105,13 @@ public class User {
 
     public void setSessionKey(SessionKey sessionKey) {
         this.sessionKey = sessionKey;
+    }
+
+    public void setEncryptionMode(String mode) {
+        this.encryptionMode = mode;
+    }
+
+    public String getEncryptionMode() {
+        return this.encryptionMode;
     }
 }

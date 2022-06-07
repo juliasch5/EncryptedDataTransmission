@@ -12,6 +12,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -47,11 +48,21 @@ public class PeerThread extends Thread {
                                 String port = object.get("port").toString();
                                 String fileName = object.get("fileName").toString();
                                 String fileStream = object.get("fileStream").toString();
+                                byte[] byteArray = new byte[0];
+                                if (object.has("mode")) {
+                                    String mode = object.get("mode").toString();
+                                    if (mode.equals("CBC")) {
+                                        byteArray = (new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(fileStream));
+                                    }
+                                    else if (mode.equals("ECB")) {
 
-                                byte[] byteArray = Base64.getDecoder().decode(fileStream);
-                                for (byte b : byteArray) {
-                                    // System.out.println((char) b);
+                                    }
+                                    else {
+
+                                    }
                                 }
+
+                               // byte[] byteArray = Base64.getDecoder().decode(fileStream);
                                 saveFile(port, fileName, byteArray);
                             }
                             // large files
@@ -70,12 +81,19 @@ public class PeerThread extends Thread {
                                         JSONObject tmpObject = largeFileMessages[i];
                                         fileStream += tmpObject.get("fileStream").toString();
                                     }
+                                    byte[] byteArray = new byte[0];
+                                    if (object.has("mode")) {
+                                        String mode = object.get("mode").toString();
+                                        if (mode.equals("CBC")) {
+                                            byteArray = (new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(fileStream));
+                                        }
+                                        else if (mode.equals("ECB")) {
 
-                                    byte[] byteArray = Base64.getDecoder().decode(fileStream);
-                                    for (byte b : byteArray) {
-                                        // System.out.println((char) b);
+                                        }
+                                        else {
+
+                                        }
                                     }
-
                                     saveFile(port, fileName, byteArray);
                                 }
                             }
@@ -85,8 +103,21 @@ public class PeerThread extends Thread {
                     else {
                         if (object.has("port")) {
                             System.out.println(object.toMap().toString());
+                            String message = object.get("message").toString();
+                            if (object.has("mode")) {
+                                String mode = object.get("mode").toString();
+                                if (mode.equals("CBC")) {
+                                    message = new String(new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(message), StandardCharsets.UTF_8);
+                                }
+                                else if (mode.equals("ECB")) {
+
+                                }
+                                else {
+
+                                }
+                            }
                             chatWindow.getChatArea().append("from port " + object.get("port").toString() + ":\n" +
-                                    object.get("message").toString() + "\n");
+                                    message + "\n");
                             if (object.has("sender")) {
                                 sendPublicKeyAndSessionKey(object.get("sender").toString(), chatWindow.getServer());
                             }

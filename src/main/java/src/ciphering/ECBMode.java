@@ -4,7 +4,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64.*;
 
-public class ECB_mode {
+public class ECBMode {
 
     public static String encrypt(String input, String key) {
         byte[] crypted = null;

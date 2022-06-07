@@ -70,6 +70,8 @@ public class ConnectWindow {
             String port1 = tfPort.getText();
             String mode = cbMode.getItemAt(cbMode.getSelectedIndex()).toString();
 
+            user.setEncryptionMode(mode);
+
             Socket socket = null;
             try {
                 socket = new Socket(hostname, Integer.parseInt(port1));

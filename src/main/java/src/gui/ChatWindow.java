@@ -1,6 +1,7 @@
 package src.gui;
 
 import org.json.JSONObject;
+import src.ciphering.CBCMode;
 import src.p2p.ServerThread;
 
 import javax.crypto.BadPaddingException;
@@ -10,6 +11,7 @@ import javax.crypto.ShortBufferException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -127,12 +129,36 @@ public class ChatWindow {
                 } catch (IOException fileNotFoundException) {
                     fileNotFoundException.printStackTrace();
                 }
+                String mode = serverThread.getUser().getEncryptionMode();
+                String encryptedFileStream = null;
+                try {
+                    encryptedFileStream = encrypt(byteArray, mode);
+                } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+                    invalidAlgorithmParameterException.printStackTrace();
+                } catch (ShortBufferException shortBufferException) {
+                    shortBufferException.printStackTrace();
+                } catch (IllegalBlockSizeException illegalBlockSizeException) {
+                    illegalBlockSizeException.printStackTrace();
+                } catch (NoSuchPaddingException noSuchPaddingException) {
+                    noSuchPaddingException.printStackTrace();
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                } catch (BadPaddingException badPaddingException) {
+                    badPaddingException.printStackTrace();
+                } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+                    noSuchAlgorithmException.printStackTrace();
+                } catch (NoSuchProviderException noSuchProviderException) {
+                    noSuchProviderException.printStackTrace();
+                } catch (InvalidKeyException invalidKeyException) {
+                    invalidKeyException.printStackTrace();
+                }
 
                 String jsonString = new JSONObject()
                         .put("isFile", true)
                         .put("port", port)
+                        .put("mode", mode)
                         .put("fileName", file.getName())
-                        .put("fileStream", Base64.getEncoder().encodeToString(byteArray))
+                        .put("fileStream", encryptedFileStream)
                         .put("fileSize", fileSize)
                         .put("index", 0)
                         .put("numberOfMessages", 1)
@@ -180,6 +206,7 @@ public class ChatWindow {
                     // split fileStream
                     String port1 = object.get("port").toString();
                     String fileStream = object.get("fileStream").toString();
+                    String mode = object.get("mode").toString();
                     int numberOfMessages = fileStream.length() / (50 * 1024) + 1;
 
                     String[] stream = fileStream.split("(?<=\\G.{" + 50 * 1024 + "})");
@@ -199,6 +226,7 @@ public class ChatWindow {
                                 String newJsonString = new JSONObject()
                                         .put("isFile", true)
                                         .put("port", port1)
+                                        .put("mode", mode)
                                         .put("fileName", fileName)
                                         .put("fileStream", stream[i])
                                         .put("fileSize", fileSize)
@@ -250,13 +278,19 @@ public class ChatWindow {
             taText.setText("");
             chatArea.append("Me:\n" + message + "\n");
 
-            String jsonString = new JSONObject()
-                    .put("isFile", false)
-                    .put("port", port)
-                    .put("message", message)
-                    .toString();
+            String mode = serverThread.getUser().getEncryptionMode();
+            byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 
             try {
+                String encryptedMessage = encrypt(messageBytes, mode);
+
+                String jsonString = new JSONObject()
+                        .put("isFile", false)
+                        .put("port", port)
+                        .put("mode", mode)
+                        .put("message", encryptedMessage)
+                        .toString();
+
                 serverThread.sendMessage(jsonString, port);
             } catch (ShortBufferException shortBufferException) {
                 shortBufferException.printStackTrace();
@@ -323,6 +357,21 @@ public class ChatWindow {
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(exchangeButton))
         );
+    }
+
+    public String encrypt(byte[] message, String mode) throws InvalidAlgorithmParameterException, ShortBufferException, IllegalBlockSizeException, NoSuchPaddingException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        if (mode.equals("CBC")) {
+            return Base64
+                    .getEncoder()
+                    .withoutPadding()
+                    .encodeToString(new CBCMode(server.getUser().getSessionKey().getByteArray()).CBCEncrypt(message));
+        }
+        else if (mode.equals("ECB")) {
+            return Base64.getEncoder().withoutPadding().encodeToString(new CBCMode().CBCEncrypt(message));
+        }
+        else {
+            return null;
+        }
     }
 
     public JTextArea getChatArea() {

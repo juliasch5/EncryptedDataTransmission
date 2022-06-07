@@ -21,11 +21,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class CBCMode {
 
-    //WARNING
-    /* #######################################################################
-    Don't know if it's exactly what we need so maybe we should check it before
-    ######################################################################  */
-
     //Default block size
     public static int blockSize = 16;
 
