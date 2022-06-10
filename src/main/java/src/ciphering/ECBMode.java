@@ -2,39 +2,40 @@ package src.ciphering;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Base64.*;
+import java.util.Base64;
 
 public class ECBMode {
 
-    public static String encrypt(String input, String key) {
+    public byte[] encrypt(byte[] input, byte[] pass) {
         byte[] crypted = null;
         try {
+            byte[] key = new byte[pass.length];
+            System.arraycopy(pass, 0 , key, 0, pass.length);
 
-            SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
+            SecretKeySpec skey = new SecretKeySpec(key, "AES");
 
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skey);
-            crypted = cipher.doFinal(input.getBytes());
+            crypted = cipher.doFinal(input);
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-        java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
-
-        return new String(encoder.encodeToString(crypted));
+        return crypted;
     }
 
-    public static String decrypt(String input, String key) {
+    public byte[] decrypt(String input, byte[] pass) {
         byte[] output = null;
         try {
-            java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
-            SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
+            byte[] key = new byte[pass.length];
+            System.arraycopy(pass, 0 , key, 0, pass.length);
+            SecretKeySpec skey = new SecretKeySpec(key, "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, skey);
-            output = cipher.doFinal(decoder.decode(input));
+            output = cipher.doFinal(Base64.getDecoder().decode(input));
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-        return new String(output);
+        return output;
     }
 
 }

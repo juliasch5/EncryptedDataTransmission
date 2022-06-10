@@ -2,6 +2,7 @@ package src.gui;
 
 import org.json.JSONObject;
 import src.ciphering.CBCMode;
+import src.ciphering.ECBMode;
 import src.p2p.ServerThread;
 
 import javax.crypto.BadPaddingException;
@@ -367,7 +368,9 @@ public class ChatWindow {
                     .encodeToString(new CBCMode(server.getUser().getSessionKey().getByteArray()).CBCEncrypt(message));
         }
         else if (mode.equals("ECB")) {
-            return Base64.getEncoder().withoutPadding().encodeToString(new CBCMode().CBCEncrypt(message));
+            return Base64.getEncoder()
+                    .withoutPadding()
+                    .encodeToString(new ECBMode().encrypt(message, server.getUser().getSessionKey().getByteArray()));
         }
         else {
             return null;

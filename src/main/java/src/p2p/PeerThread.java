@@ -1,6 +1,7 @@
 package src.p2p;
 
 import src.ciphering.CBCMode;
+import src.ciphering.ECBMode;
 import src.gui.ChatWindow;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -17,7 +18,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.Base64;
 
 public class PeerThread extends Thread {
     private BufferedReader bufferedReader;
@@ -55,7 +55,7 @@ public class PeerThread extends Thread {
                                         byteArray = (new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(fileStream));
                                     }
                                     else if (mode.equals("ECB")) {
-
+                                        byteArray = (new ECBMode().decrypt(fileStream, user.getSessionKey().getByteArray()));
                                     }
                                     else {
 
@@ -88,7 +88,7 @@ public class PeerThread extends Thread {
                                             byteArray = (new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(fileStream));
                                         }
                                         else if (mode.equals("ECB")) {
-
+                                            byteArray = (new ECBMode().decrypt(fileStream, user.getSessionKey().getByteArray()));
                                         }
                                         else {
 
@@ -110,7 +110,7 @@ public class PeerThread extends Thread {
                                     message = new String(new CBCMode(user.getSessionKey().getByteArray()).CBCDecrypt(message), StandardCharsets.UTF_8);
                                 }
                                 else if (mode.equals("ECB")) {
-
+                                    message = new String(new ECBMode().decrypt(message, user.getSessionKey().getByteArray()), StandardCharsets.UTF_8);
                                 }
                                 else {
 
