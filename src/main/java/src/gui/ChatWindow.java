@@ -32,6 +32,7 @@ public class ChatWindow {
     private JScrollPane taScroll;
     private JButton exchangeButton;
     private ServerThread server;
+    private String fileText;
     GroupLayout layout;
 
     public ChatWindow() {
@@ -165,7 +166,9 @@ public class ChatWindow {
                         .put("numberOfMessages", 1)
                         .toString();
 
-                fileTextArea.append(jsonString);
+                //fileTextArea.append(jsonString);
+                fileText = jsonString;
+                System.out.println("Ready to send.");
             }
         });
 
@@ -173,7 +176,8 @@ public class ChatWindow {
         bSendFile.setBounds(410, 490, 70, 30);
         bSendFile.setBackground(Color.LIGHT_GRAY);
         bSendFile.addActionListener(e -> {
-            String jsonString = fileTextArea.getText();
+            //String jsonString = fileTextArea.getText();
+            String jsonString = fileText;
             fileTextArea.setText("");
 
             JSONObject object = new JSONObject(jsonString);
